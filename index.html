@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест на психотип</title>
+<style>
+  :root{
+    --bg: #2b1622;
+    --paper: #fdf1f4;
+    --paper-line: #f0d3dc;
+    --ink: #3a1f29;
+    --ink-soft: #8a6472;
+    --rose: #c14d78;
+    --rose-deep: #8f3459;
+    --rose-pale: #f6d9e3;
+    --blush: #f8e3ea;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(circle at 20% 0%, #3d1e2e 0%, #2b1622 55%);
+    color:var(--blush);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:30px 14px 70px;
+  }
+  .app{ width:100%; max-width:680px; }
+
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid #4a2c3c;
+    padding-bottom:12px;
+    margin-bottom:26px;
+  }
+  .masthead .tag{
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:#c98ba3;
+    text-transform:uppercase;
+  }
+  .masthead .num{ font-size:11px; color:#c98ba3; }
+
+  h1{
+    font-family:Georgia, "Times New Roman", serif;
+    font-weight:600;
+    font-size:27px;
+    line-height:1.3;
+    margin:0 0 10px;
+    color:#fbeaf0;
+  }
+  .intro p{
+    font-size:14.5px;
+    line-height:1.6;
+    color:#d6a9bb;
+    margin:0 0 14px;
+  }
+  .start-btn{
+    margin-top:8px;
+    background:var(--rose);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-size:14.5px;
+    padding:13px 26px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .start-btn:active{ background:var(--rose-deep); }
+
+  .progress-row{
+    display:flex;
+    gap:6px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .dot{ width:24px; height:5px; background:#4a2c3c; border-radius:2px; }
+  .dot.done{ background:var(--rose); }
+  .dot.active{ background:#e8a9c1; }
+
+  .trait-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:10px;
+    padding:24px 22px 20px;
+    display:none;
+  }
+  .trait-card.visible{ display:block; }
+  .trait-eyebrow{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .trait-title{
+    font-family:Georgia, serif;
+    font-size:21px;
+    font-weight:600;
+    margin:0 0 18px;
+    color:var(--rose-deep);
+  }
+
+  .q{ border-top:1px solid var(--paper-line); padding:15px 0; }
+  .q:first-of-type{ border-top:none; padding-top:2px; }
+  .q-text{ font-size:15px; line-height:1.5; margin:0 0 12px; }
+
+  .opts{ display:flex; gap:8px; }
+  .opt{
+    flex:1;
+    text-align:center;
+    padding:9px 6px;
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    font-size:12.5px;
+    cursor:pointer;
+    background:#fff;
+    color:var(--ink-soft);
+    user-select:none;
+  }
+  .opt.picked{
+    background:var(--rose);
+    border-color:var(--rose);
+    color:#fff;
+  }
+
+  .nav-row{ display:flex; justify-content:space-between; margin-top:20px; gap:10px; }
+  .nav-btn{
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1px solid var(--rose);
+    background:transparent;
+    color:var(--rose);
+  }
+  .nav-btn.primary{ background:var(--rose); color:#fff; }
+  .nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+
+  .results{ display:none; }
+  .results.visible{ display:block; }
+  .results-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:10px;
+    padding:26px 22px;
+  }
+  .results-title{
+    font-family:Georgia, serif;
+    font-size:23px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--rose-deep);
+  }
+  .results-sub{ font-size:13px; color:var(--ink-soft); margin:0 0 22px; }
+
+  .res-row{ padding:14px 0; border-top:1px solid var(--paper-line); }
+  .res-row:first-child{ border-top:none; }
+  .res-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .res-name{ font-size:14.5px; font-weight:700; }
+  .res-score{ font-size:13px; color:var(--rose-deep); font-weight:700; white-space:nowrap; }
+  .track{ height:9px; background:var(--rose-pale); border-radius:5px; overflow:hidden; margin-bottom:8px; }
+  .fill{ height:9px; background:linear-gradient(90deg, var(--rose), var(--rose-deep)); border-radius:5px; }
+  .res-desc{ font-size:13px; line-height:1.55; color:#5c3d49; }
+
+  .summary-box{
+    margin-top:20px; padding-top:18px; border-top:1px solid var(--paper-line);
+    font-size:14px; line-height:1.65;
+  }
+  .summary-box b{ color:var(--rose-deep); }
+
+  .restart-btn{
+    margin-top:20px;
+    background:transparent;
+    border:1px solid var(--rose-deep);
+    color:var(--rose-deep);
+    font-size:13px;
+    padding:9px 16px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .footer-note{
+    text-align:center;
+    font-size:11.5px;
+    color:#8a6472;
+    margin-top:18px;
+  }
+  @media (max-width:480px){
+    .trait-card, .results-card{ padding:18px 16px; }
+    .opts{ flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div class="tag">Тест на психотип</div>
+    <div class="num" id="headerNum">00 / 09</div>
+  </div>
+
+  <div id="intro">
+    <h1>Тест на психотип<br>(по модели Нэнси Мак-Вильямс)</h1>
+    <div class="intro">
+      <p>63 утверждения — по 7 на каждый из 9 характерологических стилей. Отвечайте по первому ощущению, не задумываясь долго.</p>
+      <p>Это не клинический диагноз, а способ лучше понять свои устойчивые способы реагировать на мир, строить отношения и справляться с тревогой.</p>
+    </div>
+    <button class="start-btn" onclick="startTest()">Начать тест</button>
+  </div>
+
+  <div id="progressRow" class="progress-row" style="display:none;"></div>
+  <div id="quiz"></div>
+
+  <div class="nav-row" id="navRow" style="display:none;">
+    <button class="nav-btn" id="backBtn" onclick="prevTrait()">Назад</button>
+    <button class="nav-btn primary" id="nextBtn" onclick="nextTrait()">Далее</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-card">
+      <div class="results-title">Ваш результат</div>
+      <div class="results-sub">Баллы по каждой черте — из максимально возможных 14</div>
+      <div id="resWrap"></div>
+      <div class="summary-box" id="summaryBox"></div>
+      <button class="restart-btn" onclick="location.reload()">Пройти заново</button>
+    </div>
+  </div>
+
+  <div class="footer-note">Тест не заменяет консультацию психолога</div>
+</div>
+
+<script>
+const traits = [
+  { id:"schizoid", name:"Шизоидный", desc:"Потребность в дистанции и личном пространстве, богатая внутренняя жизнь, независимость от чужих оценок.",
+    qs:[
+      "Мне комфортнее наблюдать за происходящим со стороны, чем участвовать в общей суете.",
+      "Я могу подолгу быть один и не испытывать одиночества.",
+      "Мне сложно быстро сблизиться с новым человеком, даже если он мне интересен.",
+      "У меня богатый внутренний мир, о котором мало кто знает.",
+      "Я ценю личное пространство больше, чем большинство людей вокруг меня.",
+      "Мне проще выразить мысль в письме, чем в живом разговоре.",
+      "Шумные компании быстро меня утомляют, даже если люди приятные."
+    ]},
+  { id:"narcissistic", name:"Нарциссический", desc:"Самооценка сильно завязана на достижениях и признании, высокая чувствительность к критике и сравнению с другими.",
+    qs:[
+      "Мне важно, чтобы мои достижения были замечены и оценены.",
+      "Я болезненно реагирую на критику, даже когда внешне сохраняю спокойствие.",
+      "Я сравниваю себя с другими, и мне важно быть на высоком уровне.",
+      "Мне сложно просить о помощи — это ощущается как признание слабости.",
+      "Я склонен(на) оценивать себя через призму успеха или неудачи.",
+      "Мне важно ощущение собственной уникальности или особенности.",
+      "Мне сложно радоваться чужим успехам, если в этот момент я сам(а) не преуспеваю."
+    ]},
+  { id:"paranoid", name:"Параноидный", desc:"Настороженность к чужим намерениям, склонность искать скрытый смысл в словах и поступках окружающих.",
+    qs:[
+      "Я часто ищу скрытый смысл в словах и поступках других людей.",
+      "Мне сложно доверять чужим намерениям, даже без явных причин для подозрений.",
+      "Я легко чувствую, что меня хотят использовать или обмануть.",
+      "Я тщательно продумываю, как могут быть истолкованы мои слова, чтобы не дать повод против себя.",
+      "Мне трудно расслабиться в новой компании — я слежу за реакциями людей.",
+      "Я склонен(на) помнить обиды и держать в уме, кто и как со мной поступил.",
+      "Мне сложно поверить, что кто-то помогает мне просто так, без скрытой выгоды."
+    ]},
+  { id:"obsessive", name:"Обсессивно-компульсивный", desc:"Высокие внутренние стандарты, потребность в контроле и порядке, дискомфорт от незавершённости и спонтанности.",
+    qs:[
+      "Мне важно, чтобы всё было сделано правильно, даже если это требует много времени.",
+      "Я часто перепроверяю свою работу, даже когда объективно всё в порядке.",
+      "Мне сложно расслабиться, если дела не завершены.",
+      "Порядок и структура помогают мне чувствовать себя спокойнее.",
+      "Я склонен(на) к самокритике, если результат не соответствует моим стандартам.",
+      "Мне трудно действовать спонтанно, без плана.",
+      "Я подолгу обдумываю решения, стараясь не ошибиться."
+    ]},
+  { id:"psychopathic", name:"Психопатический (социопатический)", desc:"Тяга к риску и автономии, инструментальный подход к правилам и отношениям, снижённая тревожность в опасных ситуациях.",
+    qs:[
+      "Мне бывает скучно следовать правилам просто потому, что «так положено».",
+      "Я умею убеждать людей и использую это, когда мне выгодно.",
+      "Риск и острые ощущения привлекают меня больше, чем стабильность.",
+      "Мне сложно долго переживать из-за чувств других людей, если это мешает моей цели.",
+      "Я иногда обхожу правила, если уверен(а), что не попадусь.",
+      "Мне интереснее контролировать ситуацию, чем подстраиваться под неё.",
+      "Мне быстро надоедает то, что не приносит новых впечатлений или выгоды."
+    ]},
+  { id:"hysterical", name:"Истерический", desc:"Яркая эмоциональность, ориентация на впечатление и связь с другими людьми, потребность быть замеченным.",
+    qs:[
+      "Мне нравится быть в центре внимания.",
+      "Я выражаю эмоции ярко и заметно для окружающих.",
+      "Мне важно нравиться людям и производить хорошее впечатление.",
+      "Я склонен(на) драматизировать события, рассказывая о них.",
+      "Мне сложно долго оставаться в одиночестве без общения.",
+      "Отношения и связь с другими людьми — одна из главных ценностей для меня.",
+      "Моё настроение легко меняется в зависимости от реакции окружающих."
+    ]},
+  { id:"manic", name:"Маниакальный (гипертим)", desc:"Высокая энергичность, беглость мыслей и действий, склонность заглушать тяжёлые переживания активностью.",
+    qs:[
+      "У меня часто много энергии и идей одновременно.",
+      "Мне сложно долго усидеть на месте или заниматься одним делом.",
+      "Я быстро загораюсь новыми проектами.",
+      "Окружающие иногда говорят, что я слишком тороплюсь или спешу.",
+      "Мне некомфортно в медленном, монотонном темпе жизни.",
+      "Я склонен(на) избегать тяжёлых мыслей, переключаясь на активность.",
+      "Мне сложно долго фокусироваться на одном деле — тянет к новому."
+    ]},
+  { id:"depressive", name:"Депрессивный", desc:"Склонность к самокритике и вине, чувствительность к потере, глубокая способность к эмпатии и сопереживанию.",
+    qs:[
+      "Я склонен(на) винить себя, даже когда объективно не виноват(а).",
+      "Мне знакомо ощущение, что я недостаточно хорош(а).",
+      "Я глубоко переживаю потери и расставания.",
+      "Мне сложно радоваться собственным успехам — я быстро нахожу, к чему придраться.",
+      "Я чувствителен(льна) к чужой боли и легко сопереживаю.",
+      "Мне свойственно ожидать плохого исхода событий.",
+      "Мне бывает трудно попросить поддержки, даже когда она нужна."
+    ]},
+  { id:"selfdefeating", name:"Саморазрушительный (мазохистический)", desc:"Склонность ставить чужие потребности выше своих, терпеть больше необходимого и недооценивать собственный вклад.",
+    qs:[
+      "Мне проще заботиться о других, чем позволить заботиться о себе.",
+      "Я замечаю, что часто оказываюсь в ситуациях, где приходится терпеть больше, чем хотелось бы.",
+      "Мне трудно попросить то, что мне нужно, даже если это важно.",
+      "Иногда я продолжаю делать то, что мне не подходит, потому что «так правильно» или «так надо».",
+      "Мне знакомо чувство, что моя ценность зависит от того, сколько я делаю для других.",
+      "Я замечаю за собой склонность недооценивать собственный вклад или заслуги.",
+      "Мне сложно выйти из отношений или ситуации, даже когда она меня истощает."
+    ]}
+];
+
+const OPT_LABELS = ["Не про меня", "Отчасти", "Точно про меня"];
+let current = 0;
+const answers = traits.map(t => new Array(t.qs.length).fill(null));
+
+function startTest(){
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('progressRow').style.display = 'flex';
+  document.getElementById('navRow').style.display = 'flex';
+  buildProgress();
+  buildQuiz();
+  renderTrait(0);
+}
+
+function buildProgress(){
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  traits.forEach((t,i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot'+i;
+    row.appendChild(d);
+  });
+}
+
+function buildQuiz(){
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+  traits.forEach((t, ti) => {
+    const card = document.createElement('div');
+    card.className = 'trait-card';
+    card.id = 'card'+ti;
+    card.innerHTML = '<div class="trait-eyebrow">Группа ' + (ti+1) + ' из ' + traits.length + '</div>' +
+      '<div class="trait-title">' + t.name + '</div>';
+    t.qs.forEach((q, qi) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'q';
+      let optsHtml = '';
+      OPT_LABELS.forEach((lab,oi)=>{
+        optsHtml += '<div class="opt" onclick="pick('+ti+','+qi+','+oi+')" id="opt-'+ti+'-'+qi+'-'+oi+'">'+lab+'</div>';
+      });
+      qDiv.innerHTML = '<p class="q-text">' + q + '</p><div class="opts" id="opts-'+ti+'-'+qi+'">' + optsHtml + '</div>';
+      card.appendChild(qDiv);
+    });
+    quiz.appendChild(card);
+  });
+}
+
+function pick(ti, qi, oi){
+  answers[ti][qi] = oi;
+  for(let o=0;o<3;o++){
+    document.getElementById('opt-'+ti+'-'+qi+'-'+o).classList.toggle('picked', o===oi);
+  }
+}
+
+function renderTrait(i){
+  traits.forEach((t,ti)=>{
+    document.getElementById('card'+ti).classList.toggle('visible', ti===i);
+    const dot = document.getElementById('dot'+ti);
+    dot.classList.remove('active','done');
+    if(ti < i) dot.classList.add('done');
+    else if(ti === i) dot.classList.add('active');
+  });
+  current = i;
+  document.getElementById('headerNum').textContent =
+    String(i+1).padStart(2,'0') + ' / ' + String(traits.length).padStart(2,'0');
+  document.getElementById('backBtn').disabled = (i===0);
+  document.getElementById('nextBtn').textContent = (i === traits.length-1) ? 'Показать результат' : 'Далее';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function prevTrait(){ if(current>0) renderTrait(current-1); }
+
+function nextTrait(){
+  const unanswered = answers[current].some(a => a===null);
+  if(unanswered){
+    alert('Отметьте ответ на каждое утверждение в этой группе.');
+    return;
+  }
+  if(current === traits.length-1){
+    showResults();
+  } else {
+    renderTrait(current+1);
+  }
+}
+
+function showResults(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('navRow').style.display='none';
+  document.getElementById('progressRow').style.display='none';
+  document.getElementById('results').classList.add('visible');
+
+  const scored = traits.map((t,ti)=>({
+    name:t.name, desc:t.desc,
+    score: answers[ti].reduce((a,b)=>a+b,0) // 0-14
+  }));
+
+  const sorted = [...scored].sort((a,b)=>b.score-a.score);
+
+  let html = '';
+  sorted.forEach(t=>{
+    const pct = (t.score/14*100).toFixed(0);
+    html += '<div class="res-row">' +
+      '<div class="res-head"><span class="res-name">'+t.name+'</span><span class="res-score">'+t.score+' / 14</span></div>' +
+      '<div class="track"><div class="fill" style="width:'+pct+'%"></div></div>' +
+      '<div class="res-desc">'+t.desc+'</div>' +
+    '</div>';
+  });
+  document.getElementById('resWrap').innerHTML = html;
+
+  const top3 = sorted.slice(0,3).map(t=>t.name).join(', ');
+  document.getElementById('summaryBox').innerHTML =
+    '<p>Ведущие черты по результатам теста: <b>' + top3 + '</b>.</p>' +
+    '<p style="color:var(--ink-soft);font-size:13px;">Высокий балл — это выраженность стиля, а не диагноз. У большинства людей в профиле сочетаются несколько черт, и это нормально.</p>';
+}
+</script>
+</body>
+</html>
