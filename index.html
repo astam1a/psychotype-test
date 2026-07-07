@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест на психотип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg-1: #fdf1f5;
+    --bg-2: #fbe1e9;
+    --paper: #ffffff;
+    --paper-soft: #fff8fa;
+    --paper-line: #f4d9e1;
+    --ink: #5c3a46;
+    --ink-soft: #a9808c;
+    --ink-faint: #c9a8b1;
+    --rose: #ebb6c2;
+    --rose-mid: #e39fb0;
+    --rose-deep: #cf7f93;
+    --rose-deeper: #b0647a;
+    --rose-pale: #fbe4ea;
+    --rose-glow: rgba(207,127,147,0.30);
+    --good: #7fae8f;
+    --bad: #cf7f93;
+  }
+  [data-theme="dark"]{
+    --bg-1: #2b1622;
+    --bg-2: #3d1e2e;
+    --paper: #3a2230;
+    --paper-soft: #43283a;
+    --paper-line: #5a3549;
+    --ink: #f8e3ea;
+    --ink-soft: #d6a9bb;
+    --ink-faint: #a9808c;
+    --rose: #ebb6c2;
+    --rose-mid: #e39fb0;
+    --rose-deep: #d1899c;
+    --rose-deeper: #f0c3cf;
+    --rose-pale: #4a2c3c;
+    --rose-glow: rgba(235,182,194,0.25);
+    --good: #93c9a6;
+    --bad: #e39fb0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% -10%, var(--rose-pale) 0%, transparent 45%),
+      radial-gradient(circle at 100% 10%, var(--bg-2) 0%, transparent 40%),
+      linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:30px 14px 70px;
+    transition:background .3s ease, color .3s ease;
+  }
+  .app{ width:100%; max-width:680px; }
+
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid var(--paper-line);
+    padding-bottom:12px;
+    margin-bottom:14px;
+    gap:10px;
+  }
+  .masthead .tag{
+    font-family:'Quicksand', sans-serif;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    color:var(--rose-deeper);
+    text-transform:uppercase;
+  }
+  .masthead-right{ display:flex; align-items:center; gap:10px; }
+  .masthead .num{ font-size:12px; font-weight:600; color:var(--ink-soft); white-space:nowrap; }
+  .theme-toggle{
+    background:none; border:1.5px solid var(--paper-line); border-radius:50%;
+    width:28px; height:28px; font-size:14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink);
+  }
+
+  #intro{ text-align:center; }
+  h1{
+    font-family:'Quicksand', serif;
+    font-weight:700;
+    font-size:27px;
+    line-height:1.35;
+    margin:0 0 12px;
+    color:var(--rose-deeper);
+  }
+  .intro p{
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+  .start-btn{
+    margin-top:10px;
+    background:linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color:#fff;
+    border:none;
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:14px 28px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 10px 24px var(--rose-glow);
+    transition:transform .15s ease;
+  }
+  .start-btn:active{ transform:scale(0.97); }
+
+  .progress-row{
+    display:flex;
+    gap:6px;
+    margin-bottom:4px;
+    flex-wrap:wrap;
+  }
+  .dot{ width:24px; height:6px; background:var(--paper-line); border-radius:4px; transition:background .2s; cursor:default; }
+  .dot.clickable{ cursor:pointer; }
+  .dot.done{ background:var(--rose-mid); }
+  .dot.active{ background:var(--rose-deeper); }
+  .remaining-note{ font-size:12px; color:var(--ink-soft); margin:0 0 18px; text-align:right; }
+
+  .trait-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:20px;
+    padding:26px 24px 22px;
+    display:none;
+    box-shadow:0 14px 34px rgba(207,127,147,0.16);
+  }
+  .trait-card.visible{ display:block; }
+  .trait-eyebrow{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--rose-mid);
+    margin-bottom:6px;
+  }
+  .trait-title{
+    font-family:'Quicksand', serif;
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 18px;
+    color:var(--rose-deeper);
+  }
+
+  .q{ border-top:1px solid var(--paper-line); padding:16px 0; }
+  .q:first-of-type{ border-top:none; padding-top:2px; }
+  .q-text{ font-size:15px; line-height:1.55; margin:0 0 12px; font-weight:600; color:var(--ink); }
+
+  .opts{ display:flex; gap:8px; }
+  .opt{
+    flex:1;
+    text-align:center;
+    padding:10px 6px;
+    border:1.5px solid var(--paper-line);
+    border-radius:12px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    background:var(--paper-soft);
+    color:var(--ink-soft);
+    user-select:none;
+    transition:all .15s ease;
+  }
+  .opt:hover{ border-color:var(--rose-mid); }
+  .opt.picked{
+    background:linear-gradient(135deg, var(--rose), var(--rose-deep));
+    border-color:var(--rose-deep);
+    color:#fff;
+    box-shadow:0 6px 14px var(--rose-glow);
+  }
+
+  .nav-row{ display:flex; justify-content:space-between; margin-top:22px; gap:10px; }
+  .nav-btn{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:11px 20px;
+    border-radius:999px;
+    cursor:pointer;
+    border:1.5px solid var(--rose-deep);
+    background:transparent;
+    color:var(--rose-deeper);
+    transition:transform .15s ease;
+  }
+  .nav-btn.primary{ background:linear-gradient(135deg, var(--rose), var(--rose-deep)); color:#fff; border-color:transparent; box-shadow:0 8px 18px var(--rose-glow); }
+  .nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+  .nav-btn:active:not(:disabled){ transform:scale(0.96); }
+
+  /* ===== RESULTS ===== */
+  .results{ display:none; }
+  .results.visible{ display:block; }
+
+  .results-header{ text-align:center; margin-bottom:12px; }
+  .results-eyebrow{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--rose-mid); margin-bottom:6px;
+  }
+  .results-title{
+    font-family:'Quicksand', serif;
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 8px;
+    color:var(--rose-deeper);
+  }
+  .results-sub{ font-size:13.5px; color:var(--ink-soft); margin:0; line-height:1.5; }
+
+  .results-actions{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+  .action-btn{
+    font-family:'Quicksand', sans-serif;
+    font-size:12px; font-weight:700;
+    padding:9px 15px;
+    border-radius:999px;
+    border:1.5px solid var(--rose-deep);
+    background:var(--paper);
+    color:var(--rose-deeper);
+    cursor:pointer;
+  }
+  .action-btn:active{ transform:scale(0.96); }
+
+  .result-tabs{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin:18px 0;
+    scrollbar-width:none;
+  }
+  .result-tabs::-webkit-scrollbar{ display:none; }
+  .res-tab{
+    flex:0 0 auto;
+    font-family:'Quicksand', sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    padding:9px 16px;
+    border-radius:999px;
+    background:var(--paper);
+    color:var(--ink-soft);
+    border:1.5px solid var(--paper-line);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .res-tab.active{
+    background:linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color:#fff;
+    border-color:transparent;
+    box-shadow:0 6px 14px var(--rose-glow);
+  }
+
+  .result-page{ display:none; }
+  .result-page.visible{ display:block; animation:fadeIn .35s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .card{
+    background:var(--paper);
+    border-radius:20px;
+    padding:22px 22px 20px;
+    margin-bottom:16px;
+    box-shadow:0 14px 34px rgba(207,127,147,0.14);
+  }
+  .card-title{
+    font-family:'Quicksand', serif;
+    font-size:17px;
+    font-weight:700;
+    color:var(--rose-deeper);
+    margin:0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card-sub{ font-size:12.5px; color:var(--ink-soft); margin:-8px 0 14px; line-height:1.5; }
+
+  /* radar chart */
+  .radar-svg{ width:100%; height:auto; display:block; }
+  .radar-label{ font-size:9.5px; font-weight:700; fill:var(--ink-soft); font-family:'Nunito', sans-serif; }
+  .radar-data{ transform-box:fill-box; transform-origin:center; animation:growRadar .7s ease; }
+  @keyframes growRadar{ from{ transform:scale(0); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .radar-legend{ display:flex; gap:18px; justify-content:center; margin-top:6px; flex-wrap:wrap; }
+  .radar-legend-item{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); font-weight:600; }
+  .leg-swatch{ width:16px; height:8px; border-radius:3px; }
+  .leg-solid{ background:linear-gradient(90deg, var(--rose), var(--rose-deep)); }
+  .leg-dash{ border-top:2px dashed var(--rose-deeper); height:0; width:16px; }
+  .leg-dash2{ border-top:2px dashed #8fae9f; height:0; width:16px; }
+
+  /* total score */
+  .total-score-row{ display:flex; align-items:baseline; gap:8px; margin-bottom:10px; }
+  .total-score-num{ font-family:'Quicksand', serif; font-size:34px; font-weight:700; color:var(--rose-deeper); }
+  .total-score-den{ font-size:15px; color:var(--ink-soft); font-weight:600; }
+  .total-track{ height:12px; background:var(--rose-pale); border-radius:8px; overflow:hidden; margin-bottom:10px; }
+  .total-fill{ height:12px; background:linear-gradient(90deg, var(--rose), var(--rose-deep)); border-radius:8px; }
+  .total-caption{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin:0; }
+
+  /* bars list */
+  .bar-row{ padding:10px 0; }
+  .bar-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; gap:8px; }
+  .bar-name{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .bar-score{ font-size:12.5px; color:var(--rose-deeper); font-weight:700; white-space:nowrap; }
+  .bar-track{ height:8px; background:var(--rose-pale); border-radius:5px; overflow:hidden; }
+  .bar-fill{ height:8px; background:linear-gradient(90deg, var(--rose), var(--rose-deep)); border-radius:5px; }
+
+  /* top3 summary cards */
+  .top3-item{ display:flex; gap:14px; padding:16px 0; border-top:1px solid var(--paper-line); }
+  .top3-item:first-child{ border-top:none; padding-top:2px; }
+  .top3-badge{
+    flex:0 0 auto;
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color:#fff; font-family:'Quicksand', sans-serif; font-weight:700; font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .top3-body{ flex:1; }
+  .top3-head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:4px; }
+  .top3-name{ font-family:'Quicksand', sans-serif; font-size:15.5px; font-weight:700; color:var(--ink); }
+  .top3-score{ font-size:12.5px; color:var(--rose-deeper); font-weight:700; white-space:nowrap; }
+  .top3-desc{ font-size:13px; line-height:1.55; color:var(--ink-soft); margin:0; }
+
+  /* interpretation */
+  .interp-text p{ font-size:14.5px; line-height:1.75; color:var(--ink); margin:0 0 14px; }
+  .interp-text p:last-child{ margin-bottom:0; }
+
+  /* strengths / watch */
+  .list-item{ display:flex; gap:10px; padding:9px 0; font-size:13.5px; line-height:1.5; color:var(--ink); }
+  .list-icon{ flex:0 0 auto; font-size:15px; margin-top:1px; }
+  .icon-good{ color:var(--good); }
+  .icon-watch{ color:var(--bad); }
+  .note-box{
+    margin-top:14px; padding:14px 16px; border-radius:14px;
+    background:var(--rose-pale); font-size:12.5px; line-height:1.55; color:var(--rose-deeper);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .disclaimer-card{
+    background:var(--paper-soft);
+    border:1px dashed var(--paper-line);
+    border-radius:16px;
+    padding:16px 18px;
+    font-size:12px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-bottom:16px;
+  }
+
+  /* advice / compat cards */
+  .advice-block{ font-size:13.5px; line-height:1.6; color:var(--ink); background:var(--paper-soft); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+  .advice-block b{ color:var(--rose-deeper); }
+
+  /* reading list */
+  .read-item{ display:flex; gap:10px; padding:8px 0; font-size:13px; color:var(--ink); }
+  .read-icon{ flex:0 0 auto; }
+
+  /* compare */
+  .compare-input{
+    width:100%; padding:11px 14px; border-radius:12px; border:1.5px solid var(--paper-line);
+    font-size:13px; font-family:inherit; color:var(--ink); background:var(--paper-soft);
+  }
+
+  .result-nav{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:18px; }
+  .res-page-dots{ display:flex; gap:6px; }
+  .res-page-dots .dot2{ width:7px; height:7px; border-radius:50%; background:var(--paper-line); }
+  .res-page-dots .dot2.active{ background:var(--rose-deeper); width:18px; border-radius:4px; }
+
+  .restart-btn{
+    width:100%;
+    margin-top:4px;
+    background:transparent;
+    border:1.5px solid var(--rose-deep);
+    color:var(--rose-deeper);
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    padding:12px 16px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .footer-note{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    margin-top:20px;
+  }
+  .footer-credit{
+    text-align:center;
+    font-size:10px;
+    color:var(--ink-faint);
+    opacity:0.7;
+    margin-top:8px;
+    line-height:1.6;
+  }
+  @media (max-width:480px){
+    .trait-card, .card{ padding:18px 16px; }
+    .opts{ flex-direction:column; }
+    .results-title{ font-size:22px; }
+  }
+  @media print{
+    .result-tabs, .result-nav, .restart-btn, .footer-note, .masthead, .results-actions{ display:none !important; }
+    .result-page{ display:block !important; page-break-inside:avoid; }
+  }
+  .capture-mode .result-tabs,
+  .capture-mode .result-nav,
+  .capture-mode .restart-btn,
+  .capture-mode .results-actions{ display:none !important; }
+  .capture-mode .result-page{ display:block !important; margin-bottom:6px; }
+  .capture-mode .radar-data{ animation:none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div class="tag">Тест на психотип</div>
+    <div class="masthead-right">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Сменить тему">🌙</button>
+      <div class="num" id="headerNum">00 / 09</div>
+    </div>
+  </div>
+
+  <div id="intro">
+    <h1>Тест на психотип<br>(по модели Нэнси Мак-Вильямс)</h1>
+    <div class="intro">
+      <p>63 утверждения — по 7 на каждый из 9 характерологических стилей. Отвечайте по первому ощущению, не задумываясь долго.</p>
+      <p>Это не клинический диагноз, а мягкий способ лучше понять свои устойчивые способы реагировать на мир, строить отношения и справляться с тревогой.</p>
+    </div>
+    <button class="start-btn" onclick="startTest()">Начать тест</button>
+  </div>
+
+  <div id="progressRow" class="progress-row" style="display:none;"></div>
+  <div id="remainingNote" class="remaining-note" style="display:none;"></div>
+  <div id="quiz"></div>
+
+  <div class="nav-row" id="navRow" style="display:none;">
+    <button class="nav-btn" id="backBtn" onclick="prevTrait()">Назад</button>
+    <button class="nav-btn primary" id="nextBtn" onclick="nextTrait()">Далее</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="results-eyebrow">Тест на психотип</div>
+      <h2 class="results-title">Ваш результат ✨</h2>
+      <p class="results-sub">Спасибо, что прошли тест! Вот ваш психологический профиль.</p>
+      <div class="results-actions">
+        <button class="action-btn" onclick="downloadResults()">📥 Скачать</button>
+        <button class="action-btn" onclick="shareResults()">📤 Поделиться</button>
+        <button class="action-btn" onclick="copyLink()">🔗 Ссылка на результат</button>
+      </div>
+    </div>
+
+    <div class="result-tabs" id="resultTabs"></div>
+
+    <div class="result-page visible" id="resPage0">
+      <div class="card">
+        <div class="card-title">🌸 Ваш профиль</div>
+        <div id="radarWrap"></div>
+        <div class="radar-legend" id="radarLegend"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">💗 Общий балл</div>
+        <div id="totalScoreWrap"></div>
+      </div>
+    </div>
+
+    <div class="result-page" id="resPage1">
+      <div class="card">
+        <div class="card-title">✨ Краткие итоги</div>
+        <div id="top3Wrap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Баллы по шкалам</div>
+        <div id="resWrap"></div>
+      </div>
+    </div>
+
+    <div class="result-page" id="resPage2">
+      <div class="card">
+        <div class="card-title">🌷 Общая интерпретация</div>
+        <div class="interp-text" id="interpWrap"></div>
+      </div>
+    </div>
+
+    <div class="result-page" id="resPage3">
+      <div class="card">
+        <div class="card-title">💞 Сильные стороны</div>
+        <div id="strengthsWrap"></div>
+        <div class="note-box">💡 Эти качества — ваша опора и ресурс. Используйте их для движения вперёд и достижения своих целей.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🌙 На что обратить внимание</div>
+        <div id="watchWrap"></div>
+        <div class="note-box">🕊️ Замечайте свои границы, разрешайте себе отдых и не забывайте о заботе о себе.</div>
+      </div>
+      <div class="disclaimer-card">
+        Данный тест носит ознакомительный характер и не является клинической диагностикой.<br>Он не заменяет консультацию психолога или психотерапевта.
+      </div>
+    </div>
+
+    <div class="result-page" id="resPage4">
+      <div class="card">
+        <div class="card-title">🎀 Совет для вас</div>
+        <div class="advice-block" id="adviceWrap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🤝 Как с вами проще взаимодействовать</div>
+        <div class="advice-block" id="compatWrap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Сравнить с предыдущим результатом</div>
+        <p class="card-sub">Вставьте сюда ссылку (или код) прошлого результата, чтобы увидеть, что изменилось.</p>
+        <input type="text" id="compareInput" class="compare-input" placeholder="Вставьте ссылку на прошлый результат">
+        <button class="nav-btn primary" style="margin-top:10px;width:100%;" onclick="runCompare()">Сравнить</button>
+        <div id="compareOutput" style="margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📚 Что почитать дальше</div>
+        <div id="readingWrap"></div>
+      </div>
+    </div>
+
+    <div class="result-nav">
+      <button class="nav-btn" id="resBack" onclick="prevResPage()">Назад</button>
+      <div class="res-page-dots" id="resDots"></div>
+      <button class="nav-btn primary" id="resNext" onclick="nextResPage()">Далее</button>
+    </div>
+
+    <button class="restart-btn" onclick="location.href=location.pathname">↺ Пройти тест ещё раз</button>
+  </div>
+
+  <div class="footer-note">Тест не заменяет консультацию психолога</div>
+  <div class="footer-credit">vibe coded and deployed by aya<br>@astam1a</div>
+</div>
+
+<script>
+const traits = [
+  { id:"schizoid", name:"Шизоидный", short:"Шизоидн.", icon:"🌙",
+    desc:"Потребность в дистанции и личном пространстве, богатая внутренняя жизнь, независимость от чужих оценок.",
+    summary:"вам близки богатый внутренний мир, потребность в уединении и глубокие размышления — вы цените осмысленность и независимость",
+    strengths:["Богатый внутренний мир и глубина размышлений","Независимость мышления и суждений","Способность к вдумчивому, глубокому анализу","Умение ценить подлинность в отношениях"],
+    watch:["Потребность в уединении может приводить к отдалению от людей","Бывает сложно быстро сблизиться с новым человеком","Трудности с выражением собственных эмоций и потребностей"],
+    advice:"Позволяйте себе близость в комфортном для вас темпе — не обязательно спешить, но иногда стоит сделать шаг навстречу первым.",
+    compatTip:"Дайте этому человеку личное пространство и не воспринимайте потребность в дистанции как отвержение.",
+    qs:[
+      "Мне комфортнее наблюдать за происходящим со стороны, чем участвовать в общей суете.",
+      "Я могу подолгу быть один и не испытывать одиночества.",
+      "Мне сложно быстро сблизиться с новым человеком, даже если он мне интересен.",
+      "У меня богатый внутренний мир, о котором мало кто знает.",
+      "Я ценю личное пространство больше, чем большинство людей вокруг меня.",
+      "Мне проще выразить мысль в письме, чем в живом разговоре.",
+      "Шумные компании быстро меня утомляют, даже если люди приятные."
+    ]},
+  { id:"narcissistic", name:"Нарциссический", short:"Нарцисс.", icon:"👑",
+    desc:"Самооценка сильно завязана на достижениях и признании, высокая чувствительность к критике и сравнению с другими.",
+    summary:"вы чувствительны к оценке окружающих и стремитесь соответствовать высоким внутренним стандартам — вам важно признание и ощущение собственной значимости",
+    strengths:["Высокие внутренние стандарты и стремление к росту","Целеустремлённость и настойчивость","Умение производить сильное впечатление","Стремление к совершенству в делах"],
+    watch:["Чувствительность к оценке окружающих и критике","Склонность к самокритике и обесцениванию своих достижений","Сложности с принятием несовершенства"],
+    advice:"Тренируйтесь ценить себя не только за результат, но и за сам процесс — вы важны не меньше своих достижений.",
+    compatTip:"Отмечайте его/её успехи искренне и не сравнивайте с другими — это снижает тревогу и делает отношения теплее.",
+    qs:[
+      "Мне важно, чтобы мои достижения были замечены и оценены.",
+      "Я болезненно реагирую на критику, даже когда внешне сохраняю спокойствие.",
+      "Я сравниваю себя с другими, и мне важно быть на высоком уровне.",
+      "Мне сложно просить о помощи — это ощущается как признание слабости.",
+      "Я склонен(на) оценивать себя через призму успеха или неудачи.",
+      "Мне важно ощущение собственной уникальности или особенности.",
+      "Мне сложно радоваться чужим успехам, если в этот момент я сам(а) не преуспеваю."
+    ]},
+  { id:"paranoid", name:"Параноидный", short:"Параноид.", icon:"🔍",
+    desc:"Настороженность к чужим намерениям, склонность искать скрытый смысл в словах и поступках окружающих.",
+    summary:"вы внимательны к деталям и нюансам взаимодействия, чувствительны к скрытым мотивам окружающих — вам важно чувствовать себя в безопасности",
+    strengths:["Внимательность к деталям и нюансам ситуации","Развитая интуиция в отношении людей","Бдительность помогает избегать реальных рисков","Способность замечать скрытые мотивы"],
+    watch:["Настороженность может мешать доверию в отношениях","Склонность додумывать негативные сценарии","Эмоциональное напряжение от постоянной бдительности"],
+    advice:"Прежде чем делать выводы о чужих намерениях, попробуйте уточнить напрямую — часто это снимает тревогу быстрее, чем догадки.",
+    compatTip:"Будьте последовательны и прозрачны в словах и поступках — это помогает выстроить доверие постепенно.",
+    qs:[
+      "Я часто ищу скрытый смысл в словах и поступках других людей.",
+      "Мне сложно доверять чужим намерениям, даже без явных причин для подозрений.",
+      "Я легко чувствую, что меня хотят использовать или обмануть.",
+      "Я тщательно продумываю, как могут быть истолкованы мои слова, чтобы не дать повод против себя.",
+      "Мне трудно расслабиться в новой компании — я слежу за реакциями людей.",
+      "Я склонен(на) помнить обиды и держать в уме, кто и как со мной поступил.",
+      "Мне сложно поверить, что кто-то помогает мне просто так, без скрытой выгоды."
+    ]},
+  { id:"obsessive", name:"Обсессивно-компульсивный", short:"ОКР-тип", icon:"📐",
+    desc:"Высокие внутренние стандарты, потребность в контроле и порядке, дискомфорт от незавершённости и спонтанности.",
+    summary:"вы цените порядок, точность и высокие стандарты — вам важно, чтобы всё было сделано правильно",
+    strengths:["Высокая ответственность и надёжность","Внимание к деталям и качеству результата","Способность доводить дела до конца","Организованность и структурность мышления"],
+    watch:["Перфекционизм может приводить к прокрастинации","Сложности со спонтанностью и гибкостью","Излишняя самокритика при неидеальном результате"],
+    advice:"Разрешайте себе оставлять что-то «достаточно хорошим», а не идеальным — это экономит много энергии.",
+    compatTip:"Уважайте потребность в порядке и предупреждайте о планах заранее — это снижает тревогу.",
+    qs:[
+      "Мне важно, чтобы всё было сделано правильно, даже если это требует много времени.",
+      "Я часто перепроверяю свою работу, даже когда объективно всё в порядке.",
+      "Мне сложно расслабиться, если дела не завершены.",
+      "Порядок и структура помогают мне чувствовать себя спокойнее.",
+      "Я склонен(на) к самокритике, если результат не соответствует моим стандартам.",
+      "Мне трудно действовать спонтанно, без плана.",
+      "Я подолгу обдумываю решения, стараясь не ошибиться."
+    ]},
+  { id:"psychopathic", name:"Психопатический (социопатический)", short:"Психопат.", icon:"⚡",
+    desc:"Тяга к риску и автономии, инструментальный подход к правилам и отношениям, снижённая тревожность в опасных ситуациях.",
+    summary:"вы уверенно чувствуете себя в условиях риска и перемен, цените автономию и независимость от чужих правил",
+    strengths:["Смелость и готовность к риску","Уверенность в стрессовых и неопределённых ситуациях","Умение убеждать и вести за собой","Быстрая адаптация к переменам"],
+    watch:["Импульсивность может приводить к необдуманным решениям","Сложности с долгосрочными обязательствами","Стоит бережнее относиться к чувствам близких"],
+    advice:"Иногда полезно на шаг притормозить и спросить себя, что вы почувствуете через год — это помогает избежать импульсивных решений.",
+    compatTip:"Дайте свободу действий и не пытайтесь жёстко контролировать — доверие работает лучше давления.",
+    qs:[
+      "Мне бывает скучно следовать правилам просто потому, что «так положено».",
+      "Я умею убеждать людей и использую это, когда мне выгодно.",
+      "Риск и острые ощущения привлекают меня больше, чем стабильность.",
+      "Мне сложно долго переживать из-за чувств других людей, если это мешает моей цели.",
+      "Я иногда обхожу правила, если уверен(а), что не попадусь.",
+      "Мне интереснее контролировать ситуацию, чем подстраиваться под неё.",
+      "Мне быстро надоедает то, что не приносит новых впечатлений или выгоды."
+    ]},
+  { id:"hysterical", name:"Истерический", short:"Истерич.", icon:"🎭",
+    desc:"Яркая эмоциональность, ориентация на впечатление и связь с другими людьми, потребность быть замеченным.",
+    summary:"вы ярко проявляете эмоции и цените связь с людьми — вам важно производить впечатление и быть услышанным(ой)",
+    strengths:["Яркая эмоциональность и природная харизма","Способность вдохновлять и заряжать окружающих","Открытость к общению и новым знакомствам","Живое воображение и выразительность"],
+    watch:["Настроение может сильно зависеть от реакции окружающих","Склонность драматизировать события","Сложности с продолжительным одиночеством"],
+    advice:"Практикуйте находиться наедине с собой без внешнего одобрения — это укрепляет внутреннюю опору.",
+    compatTip:"Искренне выражайте своё отношение — это ценится больше, чем формальное внимание.",
+    qs:[
+      "Мне нравится быть в центре внимания.",
+      "Я выражаю эмоции ярко и заметно для окружающих.",
+      "Мне важно нравиться людям и производить хорошее впечатление.",
+      "Я склонен(на) драматизировать события, рассказывая о них.",
+      "Мне сложно долго оставаться в одиночестве без общения.",
+      "Отношения и связь с другими людьми — одна из главных ценностей для меня.",
+      "Моё настроение легко меняется в зависимости от реакции окружающих."
+    ]},
+  { id:"manic", name:"Маниакальный (гипертим)", short:"Гипертим.", icon:"☀️",
+    desc:"Высокая энергичность, беглость мыслей и действий, склонность заглушать тяжёлые переживания активностью.",
+    summary:"вы полны энергии и идей, легко загораетесь новым — вам важны движение, разнообразие и живой темп жизни",
+    strengths:["Высокая энергичность и природный энтузиазм","Быстрая генерация новых идей","Оптимизм и лёгкость на подъём","Способность заряжать своей энергией других"],
+    watch:["Сложности с завершением начатого","Риск эмоционального выгорания от темпа","Тенденция избегать тяжёлых переживаний через активность"],
+    advice:"Замедляйтесь хотя бы на пару минут в день без задач и стимулов — это помогает не терять контакт с собой.",
+    compatTip:"Поддерживайте энтузиазм, но мягко напоминайте о завершении начатого.",
+    qs:[
+      "У меня часто много энергии и идей одновременно.",
+      "Мне сложно долго усидеть на месте или заниматься одним делом.",
+      "Я быстро загораюсь новыми проектами.",
+      "Окружающие иногда говорят, что я слишком тороплюсь или спешу.",
+      "Мне некомфортно в медленном, монотонном темпе жизни.",
+      "Я склонен(на) избегать тяжёлых мыслей, переключаясь на активность.",
+      "Мне сложно долго фокусироваться на одном деле — тянет к новому."
+    ]},
+  { id:"depressive", name:"Депрессивный", short:"Депресс.", icon:"🌧️",
+    desc:"Склонность к самокритике и вине, чувствительность к потере, глубокая способность к эмпатии и сопереживанию.",
+    summary:"выражены черты эмпатии, ответственности и глубокой чувствительности — вы склонны переживать за других и требуете многого от себя",
+    strengths:["Глубокая эмпатия и чувствительность к другим","Ответственность и надёжность","Способность к глубокому анализу переживаний","Верность и преданность близким"],
+    watch:["Склонность к самокритике и обесцениванию своих достижений","Чувствительность к оценке окружающих и критике","Эмоциональное истощение при длительном стрессе"],
+    advice:"Практикуйтесь замечать свои маленькие успехи вслух, а не только то, что можно было сделать лучше.",
+    compatTip:"Чаще выражайте признание и поддержку — это очень откликается, даже если человек не просит об этом прямо.",
+    qs:[
+      "Я склонен(на) винить себя, даже когда объективно не виноват(а).",
+      "Мне знакомо ощущение, что я недостаточно хорош(а).",
+      "Я глубоко переживаю потери и расставания.",
+      "Мне сложно радоваться собственным успехам — я быстро нахожу, к чему придраться.",
+      "Я чувствителен(льна) к чужой боли и легко сопереживаю.",
+      "Мне свойственно ожидать плохого исхода событий.",
+      "Мне бывает трудно попросить поддержки, даже когда она нужна."
+    ]},
+  { id:"selfdefeating", name:"Саморазрушительный (мазохистический)", short:"Саморазр.", icon:"🤲",
+    desc:"Склонность ставить чужие потребности выше своих, терпеть больше необходимого и недооценивать собственный вклад.",
+    summary:"вы склонны заботиться о других больше, чем о себе, и цените отношения, даже когда это требует жертв",
+    strengths:["Забота о других и природная щедрость","Терпение и внутренняя выносливость","Скромность и умение слушать","Готовность помогать и поддерживать"],
+    watch:["Трудности с выражением собственных потребностей","Склонность терпеть больше необходимого","Риск недооценивать собственный вклад и заслуги"],
+    advice:"Тренируйтесь называть свои потребности вслух — даже маленький шаг в этом важен.",
+    compatTip:"Спрашивайте прямо, что нужно этому человеку — самому(ой) ему/ей может быть трудно сказать об этом первым.",
+    qs:[
+      "Мне проще заботиться о других, чем позволить заботиться о себе.",
+      "Я замечаю, что часто оказываюсь в ситуациях, где приходится терпеть больше, чем хотелось бы.",
+      "Мне трудно попросить то, что мне нужно, даже если это важно.",
+      "Иногда я продолжаю делать то, что мне не подходит, потому что «так правильно» или «так надо».",
+      "Мне знакомо чувство, что моя ценность зависит от того, сколько я делаю для других.",
+      "Я замечаю за собой склонность недооценивать собственный вклад или заслуги.",
+      "Мне сложно выйти из отношений или ситуации, даже когда она меня истощает."
+    ]}
+];
+
+const READING_LIST = [
+  { icon:"📖", text:"Нэнси Мак-Вильямс — «Психоаналитическая диагностика»" },
+  { icon:"📖", text:"Нэнси Мак-Вильямс — «Психоаналитическая психотерапия»" },
+  { icon:"📖", text:"Отто Кернберг — работы о структуре личности и организации характера" },
+  { icon:"📖", text:"Ирвин Ялом — «Экзистенциальная психотерапия»" }
+];
+
+const OPT_LABELS = ["Не про меня", "Отчасти", "Точно про меня"];
+let current = 0;
+let currentResPage = 0;
+let maxReached = 0;
+const answers = traits.map(t => new Array(t.qs.length).fill(null));
+const TOTAL_QUESTIONS = traits.reduce((s,t)=>s+t.qs.length,0);
+
+function toggleTheme(){
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = isDark ? '🌙' : '☀️';
+}
+
+function startTest(){
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('progressRow').style.display = 'flex';
+  document.getElementById('remainingNote').style.display = 'block';
+  document.getElementById('navRow').style.display = 'flex';
+  buildProgress();
+  buildQuiz();
+  renderTrait(0);
+}
+
+function buildProgress(){
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  traits.forEach((t,i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot'+i;
+    d.title = t.name;
+    d.onclick = function(){ if(i<=maxReached) renderTrait(i); };
+    row.appendChild(d);
+  });
+}
+
+function buildQuiz(){
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+  traits.forEach((t, ti) => {
+    const card = document.createElement('div');
+    card.className = 'trait-card';
+    card.id = 'card'+ti;
+    card.innerHTML = '<div class="trait-eyebrow">Группа ' + (ti+1) + ' из ' + traits.length + '</div>' +
+      '<div class="trait-title">' + t.icon + ' ' + t.name + '</div>';
+    t.qs.forEach((q, qi) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'q';
+      let optsHtml = '';
+      OPT_LABELS.forEach((lab,oi)=>{
+        optsHtml += '<div class="opt" onclick="pick('+ti+','+qi+','+oi+')" id="opt-'+ti+'-'+qi+'-'+oi+'">'+lab+'</div>';
+      });
+      qDiv.innerHTML = '<p class="q-text">' + q + '</p><div class="opts" id="opts-'+ti+'-'+qi+'">' + optsHtml + '</div>';
+      card.appendChild(qDiv);
+    });
+    quiz.appendChild(card);
+  });
+}
+
+function updateRemaining(){
+  const answeredCount = answers.reduce((s,a)=> s + a.filter(x=>x!==null).length, 0);
+  document.getElementById('remainingNote').textContent = 'Осталось вопросов: ' + (TOTAL_QUESTIONS - answeredCount);
+}
+
+function pick(ti, qi, oi){
+  answers[ti][qi] = oi;
+  for(let o=0;o<3;o++){
+    document.getElementById('opt-'+ti+'-'+qi+'-'+o).classList.toggle('picked', o===oi);
+  }
+  updateRemaining();
+}
+
+function renderTrait(i){
+  traits.forEach((t,ti)=>{
+    document.getElementById('card'+ti).classList.toggle('visible', ti===i);
+    const dot = document.getElementById('dot'+ti);
+    dot.classList.remove('active','done');
+    if(ti < i) dot.classList.add('done');
+    else if(ti === i) dot.classList.add('active');
+    dot.classList.toggle('clickable', ti<=maxReached);
+  });
+  current = i;
+  maxReached = Math.max(maxReached, i);
+  document.getElementById('headerNum').textContent =
+    String(i+1).padStart(2,'0') + ' / ' + String(traits.length).padStart(2,'0');
+  document.getElementById('backBtn').disabled = (i===0);
+  document.getElementById('nextBtn').textContent = (i === traits.length-1) ? 'Показать результат' : 'Далее';
+  updateRemaining();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function prevTrait(){ if(current>0) renderTrait(current-1); }
+
+function nextTrait(){
+  const unanswered = answers[current].some(a => a===null);
+  if(unanswered){
+    alert('Отметьте ответ на каждое утверждение в этой группе.');
+    return;
+  }
+  if(current === traits.length-1){
+    showResults();
+  } else {
+    renderTrait(current+1);
+  }
+}
+
+/* ===== RADAR CHART ===== */
+function buildRadar(scores, prevScores){
+  const cx=170, cy=170, maxR=104, n=traits.length;
+  function pt(r,i){
+    const angle = (360/n)*i - 90;
+    const rad = angle*Math.PI/180;
+    return [cx + r*Math.cos(rad), cy + r*Math.sin(rad)];
+  }
+  let grid='';
+  [0.25,0.5,0.75,1].forEach(frac=>{
+    let pts=[];
+    for(let i=0;i<n;i++){ const p=pt(maxR*frac,i); pts.push(p[0].toFixed(1)+','+p[1].toFixed(1)); }
+    grid += '<polygon points="'+pts.join(' ')+'" fill="none" stroke="#f4d9e1" stroke-width="1"/>';
+  });
+  let axes='';
+  for(let i=0;i<n;i++){ const p=pt(maxR,i); axes += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#f4d9e1" stroke-width="1"/>'; }
+  let labelsSvg='';
+  for(let i=0;i<n;i++){
+    const p = pt(maxR+28,i);
+    let anchor='middle';
+    if(p[0] < cx-14) anchor='end'; else if(p[0] > cx+14) anchor='start';
+    labelsSvg += '<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" text-anchor="'+anchor+'" dominant-baseline="middle" class="radar-label">'+traits[i].short+'</text>';
+  }
+  let baselinePts=[];
+  for(let i=0;i<n;i++){ const p=pt(maxR*0.5,i); baselinePts.push(p[0].toFixed(1)+','+p[1].toFixed(1)); }
+  let dataPts=[];
+  for(let i=0;i<n;i++){ const r = maxR*(scores[i]/14); const p=pt(r,i); dataPts.push(p[0].toFixed(1)+','+p[1].toFixed(1)); }
+
+  let prevPolygon = '';
+  if(prevScores){
+    let prevPts=[];
+    for(let i=0;i<n;i++){ const r = maxR*(prevScores[i]/14); const p=pt(r,i); prevPts.push(p[0].toFixed(1)+','+p[1].toFixed(1)); }
+    prevPolygon = '<polygon points="'+prevPts.join(' ')+'" fill="none" stroke="#7fa38f" stroke-width="2" stroke-dasharray="3,3" opacity="0.85"/>';
+  }
+
+  return '<svg viewBox="0 0 340 340" class="radar-svg">'
+    + grid + axes
+    + '<polygon points="'+baselinePts.join(' ')+'" fill="none" stroke="#cf7f93" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.65"/>'
+    + prevPolygon
+    + '<polygon class="radar-data" points="'+dataPts.join(' ')+'" fill="#ebb6c2" fill-opacity="0.5" stroke="#cf7f93" stroke-width="2.5" stroke-linejoin="round"/>'
+    + labelsSvg
+    + '</svg>';
+}
+
+/* ===== SAVE / RESTORE VIA URL ===== */
+function encodeAnswers(){
+  const json = JSON.stringify(answers);
+  return btoa(unescape(encodeURIComponent(json)));
+}
+function decodeAnswers(str){
+  return JSON.parse(decodeURIComponent(escape(atob(str))));
+}
+
+/* ===== ACTIONS ===== */
+function downloadResults(){
+  const el = document.getElementById('results');
+  el.classList.add('capture-mode');
+  html2canvas(el, {backgroundColor:getComputedStyle(document.body).getPropertyValue('--bg-1') || '#fdf1f5', scale:2, useCORS:true}).then(function(canvas){
+    el.classList.remove('capture-mode');
+    const link = document.createElement('a');
+    link.download = 'moy-psihotip-rezultat.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(function(){
+    el.classList.remove('capture-mode');
+    alert('Не удалось скачать изображение. Попробуйте сделать скриншот страницы.');
+  });
+}
+
+function shareResults(){
+  const scored = traits.map((t,ti)=>({name:t.name, score: answers[ti].reduce((a,b)=>a+b,0)}));
+  const top = [...scored].sort((a,b)=>b.score-a.score).slice(0,3);
+  const text = 'Мой профиль по тесту на психотип: ' + top.map(function(t){ return t.name+' ('+t.score+'/14)'; }).join(', ') + '. Пройти тест: ';
+  const url = location.href;
+  if(navigator.share){
+    navigator.share({title:'Тест на психотип', text:text, url:url}).catch(function(){});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text+url).then(function(){
+      alert('Ссылка и краткое описание результата скопированы в буфер обмена!');
+    }).catch(function(){
+      prompt('Скопируйте ссылку вручную:', text+url);
+    });
+  } else {
+    prompt('Скопируйте ссылку вручную:', text+url);
+  }
+}
+
+function copyLink(){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(location.href).then(function(){
+      alert('Ссылка на ваш результат скопирована! Сохраните её, чтобы вернуться позже или сравнить в будущем.');
+    }).catch(function(){
+      prompt('Скопируйте ссылку вручную:', location.href);
+    });
+  } else {
+    prompt('Скопируйте ссылку вручную:', location.href);
+  }
+}
+
+function runCompare(){
+  const val = document.getElementById('compareInput').value.trim();
+  const out = document.getElementById('compareOutput');
+  if(!val){
+    out.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;">Вставьте ссылку с прошлым результатом.</p>';
+    return;
+  }
+  const match = val.match(/r=([^&]+)/);
+  const code = match ? match[1] : val;
+  let prevAnswers;
+  try{
+    prevAnswers = decodeAnswers(code);
+  }catch(e){
+    out.innerHTML = '<p style="color:var(--rose-deeper);font-size:13px;">Не удалось распознать ссылку. Проверьте, что она скопирована полностью.</p>';
+    return;
+  }
+  if(!Array.isArray(prevAnswers) || prevAnswers.length !== traits.length){
+    out.innerHTML = '<p style="color:var(--rose-deeper);font-size:13px;">Формат ссылки не подходит для сравнения.</p>';
+    return;
+  }
+  const prevScores = traits.map(function(t,ti){ return (prevAnswers[ti]||[]).reduce(function(a,b){ return a+(b||0); },0); });
+  const currentScores = traits.map(function(t,ti){ return answers[ti].reduce(function(a,b){ return a+b; },0); });
+  let rows = traits.map(function(t,ti){ return {name:t.icon+' '+t.name, prev:prevScores[ti], cur:currentScores[ti], delta:currentScores[ti]-prevScores[ti]}; });
+  rows.sort(function(a,b){ return Math.abs(b.delta)-Math.abs(a.delta); });
+  let html = rows.map(function(r){
+    const arrow = r.delta>0 ? '▲' : (r.delta<0 ? '▼' : '•');
+    const cls = r.delta>0 ? 'icon-good' : (r.delta<0 ? 'icon-watch' : '');
+    return '<div class="list-item"><span class="list-icon '+cls+'">'+arrow+'</span><span>'+r.name+': '+r.prev+' → '+r.cur+' ('+(r.delta>0?'+':'')+r.delta+')</span></div>';
+  }).join('');
+  out.innerHTML = html + buildRadar(currentScores, prevScores) + '<div class="radar-legend" style="margin-top:10px;"><div class="radar-legend-item"><span class="leg-swatch leg-solid"></span>Сейчас</div><div class="radar-legend-item"><span class="leg-swatch leg-dash2"></span>Прошлый результат</div></div>';
+}
+
+/* ===== RESULTS PAGES ===== */
+const RESULT_TAB_LABELS = ["Профиль","Итоги","Интерпретация","Рекомендации","Ещё"];
+
+function showResults(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('navRow').style.display='none';
+  document.getElementById('progressRow').style.display='none';
+  document.getElementById('remainingNote').style.display='none';
+  document.getElementById('results').classList.add('visible');
+
+  const rawScored = traits.map(function(t,ti){
+    return {
+      id:t.id, name:t.name, icon:t.icon, desc:t.desc, summary:t.summary,
+      strengths:t.strengths, watch:t.watch, advice:t.advice, compatTip:t.compatTip,
+      score: answers[ti].reduce(function(a,b){ return a+b; },0)
+    };
+  });
+  const rawScores = rawScored.map(function(t){ return t.score; });
+  const totalScore = rawScores.reduce(function(a,b){ return a+b; },0);
+  const maxTotal = traits.length*14;
+
+  const sorted = [...rawScored].sort(function(a,b){ return b.score-a.score; });
+  const top3 = sorted.slice(0,3);
+  const weakest = sorted[sorted.length-1];
+
+  // ---- Page 0: radar + total score
+  document.getElementById('radarWrap').innerHTML = buildRadar(rawScores);
+  document.getElementById('radarLegend').innerHTML =
+    '<div class="radar-legend-item"><span class="leg-swatch leg-solid"></span>Ваш результат</div>' +
+    '<div class="radar-legend-item"><span class="leg-swatch leg-dash"></span>Средний уровень</div>';
+  const totalPct = (totalScore/maxTotal*100).toFixed(0);
+  document.getElementById('totalScoreWrap').innerHTML =
+    '<div class="total-score-row"><span class="total-score-num">'+totalScore+'</span><span class="total-score-den">/ '+maxTotal+'</span></div>' +
+    '<div class="total-track"><div class="total-fill" style="width:'+totalPct+'%"></div></div>' +
+    '<p class="total-caption">Чем выше балл, тем сильнее выражены черты определённых типов в вашем профиле.</p>';
+
+  // ---- Page 1: top3 + bars
+  let top3Html = '';
+  top3.forEach(function(t,idx){
+    top3Html += '<div class="top3-item">' +
+      '<div class="top3-badge">'+(idx+1)+'</div>' +
+      '<div class="top3-body">' +
+        '<div class="top3-head"><span class="top3-name">'+t.icon+' '+t.name+'</span><span class="top3-score">'+t.score+' / 14</span></div>' +
+        '<p class="top3-desc">'+t.desc+'</p>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('top3Wrap').innerHTML = top3Html;
+
+  let barsHtml = '';
+  sorted.forEach(function(t){
+    const pct = (t.score/14*100).toFixed(0);
+    barsHtml += '<div class="bar-row">' +
+      '<div class="bar-head"><span class="bar-name">'+t.icon+' '+t.name+'</span><span class="bar-score">'+t.score+' / 14</span></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>' +
+    '</div>';
+  });
+  document.getElementById('resWrap').innerHTML = barsHtml;
+
+  // ---- Page 2: interpretation
+  const p1 = top3[0], p2 = top3[1], p3 = top3[2];
+  const interpHtml =
+    '<p>Ваш профиль сочетает несколько выраженных черт. В первую очередь ' + p1.summary + '. Также ' + p2.summary + '. И, в чуть меньшей степени, ' + p3.summary + '.</p>' +
+    '<p>Вы глубоко анализируете происходящее, цените искренние и значимые отношения и предпочитаете качественное общение поверхностным контактам.</p>' +
+    '<p>Наименее выражена у вас черта «' + weakest.name + '» (' + weakest.score + ' / 14) — это может быть той стороной, которая проявляется реже или требует особых условий, чтобы раскрыться.</p>' +
+    '<p>В стрессовых ситуациях вы можете опираться на привычные способы справляться — уходить в размышления, контроль, действие или заботу о других. Важно находить баланс между своими потребностями и ожиданиями окружающих, чтобы сохранять внутреннее равновесие.</p>';
+  document.getElementById('interpWrap').innerHTML = interpHtml;
+
+  // ---- Page 3: strengths & watch (aggregated from top3, deduped)
+  const strengthsSet = [];
+  const watchSet = [];
+  top3.forEach(function(t){
+    t.strengths.forEach(function(s){ if(strengthsSet.indexOf(s)===-1) strengthsSet.push(s); });
+    t.watch.forEach(function(w){ if(watchSet.indexOf(w)===-1) watchSet.push(w); });
+  });
+  document.getElementById('strengthsWrap').innerHTML = strengthsSet.slice(0,8).map(function(s){
+    return '<div class="list-item"><span class="list-icon icon-good">✓</span><span>'+s+'</span></div>';
+  }).join('');
+  document.getElementById('watchWrap').innerHTML = watchSet.slice(0,7).map(function(w){
+    return '<div class="list-item"><span class="list-icon icon-watch">⚠</span><span>'+w+'</span></div>';
+  }).join('');
+
+  // ---- Page 4: advice, compat, reading list
+  document.getElementById('adviceWrap').innerHTML = '<b>'+p1.icon+' '+p1.name+':</b> '+p1.advice;
+  document.getElementById('compatWrap').innerHTML = '<b>'+p1.icon+' '+p1.name+':</b> '+p1.compatTip;
+  document.getElementById('readingWrap').innerHTML = READING_LIST.map(function(r){
+    return '<div class="read-item"><span class="read-icon">'+r.icon+'</span><span>'+r.text+'</span></div>';
+  }).join('');
+
+  buildResultTabs();
+  goToResPage(0);
+
+  try{ history.replaceState(null, '', location.pathname + '#r=' + encodeAnswers()); }catch(e){}
+}
+
+function buildResultTabs(){
+  const tabsRow = document.getElementById('resultTabs');
+  tabsRow.innerHTML = '';
+  RESULT_TAB_LABELS.forEach(function(label,i){
+    const b = document.createElement('div');
+    b.className = 'res-tab';
+    b.id = 'restab'+i;
+    b.textContent = label;
+    b.onclick = function(){ goToResPage(i); };
+    tabsRow.appendChild(b);
+  });
+  const dotsRow = document.getElementById('resDots');
+  dotsRow.innerHTML = '';
+  RESULT_TAB_LABELS.forEach(function(label,i){
+    const d = document.createElement('div');
+    d.className = 'dot2';
+    d.id = 'resdot'+i;
+    dotsRow.appendChild(d);
+  });
+}
+
+function goToResPage(i){
+  currentResPage = i;
+  for(let p=0;p<RESULT_TAB_LABELS.length;p++){
+    document.getElementById('resPage'+p).classList.toggle('visible', p===i);
+    document.getElementById('restab'+p).classList.toggle('active', p===i);
+    document.getElementById('resdot'+p).classList.toggle('active', p===i);
+  }
+  document.getElementById('resBack').style.visibility = (i===0) ? 'hidden' : 'visible';
+  document.getElementById('resNext').style.visibility = (i===RESULT_TAB_LABELS.length-1) ? 'hidden' : 'visible';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function prevResPage(){ if(currentResPage>0) goToResPage(currentResPage-1); }
+function nextResPage(){ if(currentResPage<RESULT_TAB_LABELS.length-1) goToResPage(currentResPage+1); }
+
+/* ===== RESTORE FROM URL HASH ON LOAD ===== */
+(function initFromHash(){
+  const h = location.hash;
+  const m = h.match(/r=([^&]+)/);
+  if(m){
+    try{
+      const decoded = decodeAnswers(m[1]);
+      if(Array.isArray(decoded) && decoded.length === traits.length){
+        for(let i=0;i<traits.length;i++){ answers[i] = decoded[i]; }
+        document.getElementById('intro').style.display = 'none';
+        buildQuiz();
+        showResults();
+      }
+    }catch(e){ /* ignore malformed hash */ }
+  }
+})();
+</script>
+</body>
+</html>
